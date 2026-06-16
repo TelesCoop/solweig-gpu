@@ -1,0 +1,18 @@
+[project]
+name = "solweig-lyon"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "geopandas",
+    "laspy[lazrs]",
+    "numpy",
+    "pandas",
+    "pyproj",
+    "rasterio",
+    "requests",
+    "scipy",
+    "solweig-gpu",
+]
+
+[tool.uv.sources]
+solweig-gpu = { path = "../SOLWEIG-GPU", editable = true }
