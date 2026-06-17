@@ -12,8 +12,5 @@ dependencies = [
     "rasterio",
     "requests",
     "scipy",
-    "solweig-gpu",
+    "solweig-gpu @ git+https://github.com/nvnsudharsan/SOLWEIG-GPU@main",
 ]
-
-[tool.uv.sources]
-solweig-gpu = { path = "../SOLWEIG-GPU", editable = true }
