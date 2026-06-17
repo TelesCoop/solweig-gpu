@@ -61,7 +61,7 @@ Les tuiles LiDAR sont stockées dans `data/lidar_tiles/` et ne sont pas re-tél�
 uv run python run.py
 ```
 
-Lance par défaut le scénario de 2020. 
+Lance par défaut le scénario de 2020.
 
 ### Parallélisation des tuiles
 
@@ -84,7 +84,7 @@ SOLWEIG_PARALLEL=1 uv run python run.py
 Attention : avec **un seul GPU partagé**, la parallélisation n'apporte qu'un gain modeste (les calculs GPU se sérialisent sur le même appareil) et chaque processus consomme sa propre mémoire GPU — un nombre de processus trop élevé peut provoquer un dépassement de mémoire (OOM). Commencer à 2 et surveiller la mémoire. Le vrai gain (×N) vient de N GPU via `SOLWEIG_GPUS`.
 
 On stocke comme résultat intermédiaires les SVF (sky view factor) ainsi que le calcul des ombres (TIF multi band avec les ondes heure par heure).
-Ces résultats intermédiaires sont dans : 
+Ces résultats intermédiaires sont dans :
 
 ```
 inputs/processed_inputs

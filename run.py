@@ -36,7 +36,7 @@ def run_chunk(gpu_id, preprocess_dir, tile_keys):
 def tile_keys(preprocess_dir):
     bdir = Path(preprocess_dir) / "Building_DSM"
     return sorted(
-        p.name[len("Building_DSM_"):-len(".tif")]
+        p.name[len("Building_DSM_") : -len(".tif")]
         for p in bdir.glob("Building_DSM_*.tif")
     )
 
