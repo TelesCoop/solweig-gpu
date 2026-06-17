@@ -1,9 +1,6 @@
 from pyproj import Transformer
 from rasterio.transform import from_origin
 
-CRS = "EPSG:3946"
-DEFAULT_BBOX = (1839000, 5171000, 1841000, 5173000)
-
 
 def grid(bbox, res):
     xmin, ymin, xmax, ymax = bbox

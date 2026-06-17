@@ -4,7 +4,7 @@ import rasterio
 from rasterio.transform import from_origin
 from rasterio.windows import Window
 
-from utils.constants import OVERLAP
+from solweig_lyon.config import OVERLAP
 
 OUTPUTS = Path("outputs")
 

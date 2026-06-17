@@ -1,11 +1,11 @@
 import argparse
 from pathlib import Path
 
-from utils.buildings import prepare_building_dsm
-from utils.dem import prepare_dem
-from utils.geo import DEFAULT_BBOX
-from utils.landcover import prepare_landcover
-from utils.trees import prepare_trees
+from solweig_lyon.config import DEFAULT_BBOX
+from solweig_lyon.utils.buildings import prepare_building_dsm
+from solweig_lyon.utils.dem import prepare_dem
+from solweig_lyon.utils.landcover import prepare_landcover
+from solweig_lyon.utils.trees import prepare_trees
 
 
 def main():

@@ -8,7 +8,8 @@ import rasterio
 import requests
 from rasterio.features import rasterize
 
-from .geo import CRS, grid, to_2154
+from solweig_lyon.config import CRS
+from solweig_lyon.utils.geo import grid, to_2154
 
 BDTOPO_URL = "https://data.geopf.fr/wfs/ows"
 

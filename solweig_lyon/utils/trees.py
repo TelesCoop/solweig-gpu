@@ -4,7 +4,8 @@ import numpy as np
 import rasterio
 from rasterio.warp import reproject, Resampling
 
-from .geo import CRS, grid
+from solweig_lyon.config import CRS
+from solweig_lyon.utils.geo import grid
 
 
 def prepare_trees(bbox, veg_tif, out_path, res=1):

@@ -2574,7 +2574,7 @@ dependencies = [
 [[package]]
 name = "solweig-lyon"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "geopandas" },
     { name = "laspy", extra = ["lazrs"] },

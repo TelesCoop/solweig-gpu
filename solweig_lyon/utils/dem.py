@@ -9,7 +9,8 @@ from rasterio.merge import merge
 from rasterio.transform import from_origin
 from scipy.ndimage import distance_transform_edt
 
-from .geo import CRS, grid
+from solweig_lyon.config import CRS
+from solweig_lyon.utils.geo import grid
 
 
 def prepare_dem(bbox, lidar_csv, lidar_dir, out_path, res=1):

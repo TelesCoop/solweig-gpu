@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import rasterio
 
-from utils.pet import pet_polynomial, PET_BINS
+from solweig_lyon.pet import pet_polynomial, PET_BINS
 
 OUTPUTS = Path("outputs")
 

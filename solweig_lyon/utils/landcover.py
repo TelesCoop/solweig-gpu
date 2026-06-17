@@ -11,7 +11,8 @@ from rasterio.transform import from_bounds
 from rasterio.warp import Resampling, reproject
 
 from .buildings import _download_buildings
-from .geo import CRS, grid, to_2154
+from solweig_lyon.config import CRS
+from solweig_lyon.utils.geo import grid, to_2154
 
 WATER_WFS = (
     "https://data.grandlyon.com/geoserver/metropole-de-lyon/ows"

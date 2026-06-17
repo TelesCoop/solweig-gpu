@@ -5,7 +5,7 @@ from pathlib import Path
 
 from solweig_gpu import preprocess, run_utci_tiles, run_walls_aspect
 
-from utils.constants import OVERLAP, TILE_SIZE
+from solweig_lyon.config import OVERLAP, TILE_SIZE
 
 BASE = "inputs"
 OUTPUTS = Path("outputs")
