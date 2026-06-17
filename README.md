@@ -63,6 +63,26 @@ uv run python run.py
 
 Lance par défaut le scénario de 2020. 
 
+### Parallélisation des tuiles
+
+Par défaut, `run.py` traite les tuiles en parallèle (2 processus) pour accélérer le calcul. Chaque processus calcule le SVF et l'UTCI pour son lot de tuiles. Les scénarios, eux, restent séquentiels.
+
+Deux variables d'environnement permettent de régler ce comportement :
+
+```bash
+# Nombre de processus en parallèle (défaut : 2)
+SOLWEIG_PARALLEL=4 uv run python run.py
+
+# Répartir les processus sur plusieurs GPU (round-robin)
+SOLWEIG_GPUS=0,1 SOLWEIG_PARALLEL=2 uv run python run.py
+
+# Mode séquentiel (un seul processus, sans multiprocessing) :
+# utile pour déboguer ou sur une machine sans GPU dédié
+SOLWEIG_PARALLEL=1 uv run python run.py
+```
+
+Attention : avec **un seul GPU partagé**, la parallélisation n'apporte qu'un gain modeste (les calculs GPU se sérialisent sur le même appareil) et chaque processus consomme sa propre mémoire GPU — un nombre de processus trop élevé peut provoquer un dépassement de mémoire (OOM). Commencer à 2 et surveiller la mémoire. Le vrai gain (×N) vient de N GPU via `SOLWEIG_GPUS`.
+
 On stocke comme résultat intermédiaires les SVF (sky view factor) ainsi que le calcul des ombres (TIF multi band avec les ondes heure par heure).
 Ces résultats intermédiaires sont dans : 
 
