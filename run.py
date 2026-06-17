@@ -5,6 +5,8 @@ from pathlib import Path
 
 from solweig_gpu import preprocess, run_utci_tiles, run_walls_aspect
 
+from utils.constants import OVERLAP, TILE_SIZE
+
 BASE = "inputs"
 OUTPUTS = Path("outputs")
 
@@ -52,8 +54,8 @@ def main():
             dem_filename="DEM.tif",
             trees_filename="Trees.tif",
             landcover_filename="Landcover.tif",
-            tile_size=1000,
-            overlap=100,
+            tile_size=TILE_SIZE,
+            overlap=OVERLAP,
             use_own_met=True,
             own_met_file=met_file,
         )

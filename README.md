@@ -128,7 +128,7 @@ Pour chaque tuile, le script écrit à côté du `TMRT_*.tif` :
 
 | Fichier de sortie | Contenu |
 |---|---|
-| `PET_<tuile>.tif` | PET en °C, float32, multi-bandes (une bande par heure) |
+| `PET_<tuile>.tif` | PET en °C, float16 compressé, multi-bandes (une bande par heure) |
 | `PET_index_<tuile>.tif` | Indice de stress thermique, uint8 (1–9), une bande par heure |
 
 L'indice applique les classes standard de perception thermique PET (Matzarakis & Mayer) :
@@ -146,3 +146,21 @@ L'indice applique les classes standard de perception thermique PET (Matzarakis &
 | 9 | > 41 | stress chaud extrême |
 
 La valeur `0` de l'indice correspond aux pixels sans donnée. Les seuils sont définis dans `utils/pet.py` (`PET_BINS`) si besoin de les ajuster.
+
+## Étape 4 - Fusionner les tuiles
+
+```bash
+uv run python merge_outputs.py
+```
+
+Pour chaque scénario, fusionne les tuiles en un seul raster par produit (`PET`, `PET_index`, `Shadow`) dans le dossier du scénario.
+
+Les tuiles se chevauchent de `OVERLAP` pixels (voir `utils/constants.py`). On rogne la moitié de ce chevauchement sur chaque bord intérieur pour supprimer les artefacts de bord et aligner les tuiles sans recouvrement. La fusion se fait tuile par tuile (lecture fenêtrée) pour rester dans la mémoire sur l'ensemble de la métropole.
+
+| Fichier de sortie | dtype |
+|---|---|
+| `PET.tif` | float16 |
+| `PET_index.tif` | uint8 |
+| `Shadow.tif` | float16 |
+
+Sortie compressée en DEFLATE, multi-bandes (une bande par heure).
