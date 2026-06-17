@@ -1,16 +1,18 @@
 # solweig-lyon
 
-Thermal comfort analysis for the Lyon metropolis using [SOLWEIG-GPU](../SOLWEIG-GPU).
+Thermal comfort analysis for the Lyon metropolis using [SOLWEIG-GPU](https://github.com/nvnsudharsan/SOLWEIG-GPU).
 
 Prepares local French open data inputs (GrandLyon LiDAR, BD TOPO, GrandLyon WFS) and runs three climate scenarios (2020 / 2060 / 2090) for July 14.
 
 ## Setup
 
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it, then:
+
 ```bash
 uv sync
 ```
 
-This installs all dependencies and `solweig-gpu` as an editable local package from `../SOLWEIG-GPU`.
+This installs all dependencies including `solweig-gpu` directly from the latest commit on the [main branch](https://github.com/nvnsudharsan/SOLWEIG-GPU).
 
 ## Data
 

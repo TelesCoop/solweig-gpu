@@ -2548,7 +2548,7 @@ wheels = [
 [[package]]
 name = "solweig-gpu"
 version = "1.2.22"
-source = { editable = "../SOLWEIG-GPU" }
+source = { git = "https://github.com/nvnsudharsan/SOLWEIG-GPU?rev=main#e9cf96cb612b115ee08dd9c4fbf271dbb2953ddd" }
 dependencies = [
     { name = "matplotlib", version = "3.10.9", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "matplotlib", version = "3.11.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -2570,25 +2570,6 @@ dependencies = [
     { name = "xarray", version = "2025.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "xarray", version = "2026.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "matplotlib" },
-    { name = "netcdf4" },
-    { name = "numpy" },
-    { name = "pandas" },
-    { name = "pyqt5" },
-    { name = "pytest", marker = "extra == 'test'" },
-    { name = "pytest-cov", marker = "extra == 'test'" },
-    { name = "pytz" },
-    { name = "scipy" },
-    { name = "shapely" },
-    { name = "timezonefinder" },
-    { name = "torch" },
-    { name = "tqdm" },
-    { name = "xarray" },
-]
-provides-extras = ["test"]
 
 [[package]]
 name = "solweig-lyon"
@@ -2623,7 +2604,7 @@ requires-dist = [
     { name = "rasterio" },
     { name = "requests" },
     { name = "scipy" },
-    { name = "solweig-gpu", editable = "../SOLWEIG-GPU" },
+    { name = "solweig-gpu", git = "https://github.com/nvnsudharsan/SOLWEIG-GPU?rev=main" },
 ]
 
 [[package]]
