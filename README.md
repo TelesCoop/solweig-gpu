@@ -1,82 +1,96 @@
 # solweig-lyon
 
-Thermal comfort analysis for the Lyon metropolis using [SOLWEIG-GPU](https://github.com/nvnsudharsan/SOLWEIG-GPU).
+Analyse du confort thermique sur la métropole de Lyon à l'aide de [SOLWEIG-GPU](https://github.com/nvnsudharsan/SOLWEIG-GPU).
 
-Prepares local French open data inputs (GrandLyon LiDAR, BD TOPO, GrandLyon WFS) and runs three climate scenarios (2020 / 2060 / 2090) for July 14.
+Prépare les données d'entrée à partir des sources ouvertes françaises (Vegestrate, fichiers météo UMEP du CETHIL, LiDAR GrandLyon, BD TOPO, COSIA) et lance trois scénarios climatiques (2020 / 2060 / 2090) pour le 14 juillet.
 
-## Setup
+## Installation
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it, then:
+Installer [uv](https://docs.astral.sh/uv/getting-started/installation/) si nécessaire, puis :
 
 ```bash
 uv sync
 ```
 
-This installs all dependencies including `solweig-gpu` directly from the latest commit on the [main branch](https://github.com/nvnsudharsan/SOLWEIG-GPU).
+Installe toutes les dépendances, dont `solweig-gpu` depuis le dernier commit de la [branche main](https://github.com/nvnsudharsan/SOLWEIG-GPU).
 
-## Data
+## Données
 
-| File | Description |
-|---|---|
-| `data/vegestrate_02_2023_elevation.tif` | Vegetation height nDSM, EPSG:3946, 0.2 m |
-| `data/01-CURRENT_14jul.txt` | UMEP met file — 2020 current climate, July 14 |
-| `data/02-MID-CENTURY_14jul.txt` | UMEP met file — 2060 mid-century scenario |
-| `data/03-END-CENTURY_14jul.txt` | UMEP met file — 2090 end-century scenario |
-| `lidar_tiles.csv` | Index of 2842 GrandLyon LiDAR tiles (500 m × 500 m) with download URLs |
+| Fichier | Description | Source |
+|---|---|---|
+| `data/vegestrate_02_2023_elevation.tif` | Hauteur végétation nDSM, EPSG:3946, 0,2 m | Vegestrate |
+| `data/01-CURRENT_14jul.txt` | Fichier météo UMEP -- climat actuel 2020, 14 juillet | CETHIL |
+| `data/02-MID-CENTURY_14jul.txt` | Fichier météo UMEP -- scénario mi-siècle 2060 | CETHIL |
+| `data/03-END-CENTURY_14jul.txt` | Fichier météo UMEP -- scénario fin de siècle 2090 | CETHIL |
+| `lidar_tiles.csv` | Index de 2842 tuiles LiDAR GrandLyon (500 m x 500 m) avec URLs de téléchargement | [GrandLyon](https://data.grandlyon.com/fr/datapusher/ws/grandlyon/ima_gestion_images.imamnt2023laz500mcc46/all.csv?maxfeatures=-1&filename=nuage-de-points-lidar-2023-de-la-metropole-de-lyon) |
 
-## Step 1 — Prepare inputs
+## Étape 1 - Préparer les données
+
+La zone par défaut de test est vers Confluence (2 x 2 km, ~16 tuiles LiDAR).
 
 ```bash
 uv run python prepare_data.py
 ```
 
-Downloads data and writes four rasters to `inputs/`:
+Cette commande va télécharger les données LIDAR pour construire le DEM (Digital Elevation Model), les bâtiments de la BD TOPO et COSIA pour l'occupation des sols. Elle découpe aussi le nDSM de hauteur de végétation en tuiles car l'étape suivante se déroule sur des tuiles. On écrit les rasters correspondants dans `inputs/` :
 
-| Output | Source |
+| Fichier de sortie | Source |
 |---|---|
-| `Trees.tif` | Cropped & resampled from `vegestrate_02_2023_elevation.tif` |
-| `DEM.tif` | GrandLyon LiDAR 2023 (.laz tiles), ground class 2 → DTM |
-| `Building_DSM.tif` | BD TOPO `HAUTEUR` rasterised + DEM |
-| `Landcover.tif` | UMEP classes: paved default, water (GrandLyon WFS), vegetation (Trees > 0), buildings |
+| `Trees.tif` | Découpé et rééchantillonné depuis `vegestrate_02_2023_elevation.tif` |
+| `DEM.tif` | LiDAR GrandLyon 2023 (tuiles .laz), classe sol 2 --> DTM |
+| `Building_DSM.tif` | `HAUTEUR` BD TOPO rastérisé + DEM |
+| `Landcover.tif` | Classes UMEP depuis COSIA : revêtement par défaut, eau, végétation (Trees > 0), bâtiments |
 
-Default bbox is the Confluence district (2 × 2 km, ~16 LiDAR tiles):
+Pour faire sur une autre zone il faut spécifier une BBOX.
 
 ```bash
-# Custom bbox in EPSG:3946
 uv run python prepare_data.py --bbox 1839000 5171000 1841000 5173000
 
-# Full Lyon metropolis (uses SOLWEIG-GPU tiling internally)
 uv run python prepare_data.py --bbox 1831000 5152000 1860500 5195000
-
-# Coarser resolution (faster)
+```
+On peut aussi changer la résolution de l'analyse qui est par défaut de 1m.
+```bash
 uv run python prepare_data.py --resolution 2
 ```
 
-LiDAR tiles are cached in `data/lidar_tiles/` and skipped on re-runs. Building footprints are cached in `inputs/cache_buildings.geojson`.
+Les tuiles LiDAR sont stockées dans `data/lidar_tiles/` et ne sont pas re-téléchargées si déjà existantes. Pareil pour les emprises des bâtiments BD TOPP qui sont stockées  dans `inputs/cache_buildings.geojson`.
 
-## Step 2 — Run SOLWEIG
+## Étape 2 - Lancer SOLWEIG
 
 ```bash
 uv run python run.py
 ```
 
-Runs all three climate scenarios sequentially. Results land in:
+Lance par défaut le scénario de 2020. 
+
+On stocke comme résultat intermédiaires les SVF (sky view factor) ainsi que le calcul des ombres (TIF multi band avec les ondes heure par heure).
+Ces résultats intermédiaires sont dans : 
 
 ```
-outputs/
-├── 2020_current/
-├── 2060_mid_century/
-└── 2090_end_century/
+inputs/processed_inputs
+├── SVF/
+├── walls/
+├── ...
 ```
 
-Each folder contains per-tile GeoTIFFs (UTCI, Tmrt, …) from SOLWEIG-GPU.
+Les résultats UTCI et TMRT sont découpées en tuiles et stockées dans  :
 
-## UMEP land cover codes
+```
+inputs/output_folder
+├── 0_0/
+├── 0_1000/
+├── ...
+```
 
-| Code | Class |
+Chaque dossier contient des GeoTIFF par tuile (UTCI, Tmrt, ...) produits par SOLWEIG-GPU.
+Les résultats UTCI sont multi-bandes avec une bande par heure (bande 0 = 00h UTC, bande 1 = 01h00 UTC, etc)
+
+## Codes d'occupation du sol UMEP
+
+| Code | Classe |
 |---|---|
-| 1 | Paved |
-| 2 | Buildings |
-| 3 | Water |
-| 4 | Vegetation |
-| 5 | Bare soil |
+| 1 | Revêtement |
+| 2 | Bâtiments |
+| 3 | Eau |
+| 4 | Végétation |
+| 5 | Sol nu |

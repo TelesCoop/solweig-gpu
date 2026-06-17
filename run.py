@@ -29,6 +29,7 @@ for scenario, met_file in MET_FILES.items():
         own_met_file=met_file,
         save_tmrt=True,
         save_svf=True,
+        save_shadow=True,
     )
     out_src = Path(BASE) / "output_folder"
     out_dst = OUTPUTS / scenario
