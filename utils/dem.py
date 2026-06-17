@@ -24,8 +24,7 @@ def prepare_dem(bbox, lidar_csv, lidar_dir, out_path, res=1):
     xmin, ymin, xmax, ymax = bbox
     df = pd.read_csv(lidar_csv, sep=";")
     tiles = df[
-        (df.x_min < xmax) & (df.x_max > xmin) &
-        (df.y_min < ymax) & (df.y_max > ymin)
+        (df.x_min < xmax) & (df.x_max > xmin) & (df.y_min < ymax) & (df.y_max > ymin)
     ]
     print(f"  {len(tiles)} LiDAR tiles intersect bbox")
 
@@ -64,15 +63,27 @@ def prepare_dem(bbox, lidar_csv, lidar_dir, out_path, res=1):
             np.maximum.at(dtm, (ri, ci), z)
             dtm[dtm == -np.inf] = np.nan
 
-            with rasterio.open(tif_path, "w", driver="GTiff", height=th, width=tw,
-                               count=1, dtype="float32", crs=CRS, transform=tile_transform,
-                               nodata=np.nan, compress="lzw") as dst:
+            with rasterio.open(
+                tif_path,
+                "w",
+                driver="GTiff",
+                height=th,
+                width=tw,
+                count=1,
+                dtype="float32",
+                crs=CRS,
+                transform=tile_transform,
+                nodata=np.nan,
+                compress="lzw",
+            ) as dst:
                 dst.write(dtm, 1)
 
         tile_tifs.append(tif_path)
 
     if not tile_tifs:
-        raise RuntimeError("No DTM tiles produced — check LiDAR download and ground points")
+        raise RuntimeError(
+            "No DTM tiles produced — check LiDAR download and ground points"
+        )
 
     transform, width, height = grid(bbox, res)
     srcs = [rasterio.open(p) for p in tile_tifs]
@@ -85,11 +96,23 @@ def prepare_dem(bbox, lidar_csv, lidar_dir, out_path, res=1):
     dtm = mosaic[0]
     valid = np.isfinite(dtm)
     if valid.any() and not valid.all():
-        idx = distance_transform_edt(~valid, return_distances=False, return_indices=True)
+        idx = distance_transform_edt(
+            ~valid, return_distances=False, return_indices=True
+        )
         dtm = dtm[tuple(i.astype(int) for i in idx)]
 
-    with rasterio.open(out_path, "w", driver="GTiff", height=height, width=width,
-                       count=1, dtype="float32", crs=CRS, transform=transform,
-                       nodata=np.nan, compress="lzw") as dst:
+    with rasterio.open(
+        out_path,
+        "w",
+        driver="GTiff",
+        height=height,
+        width=width,
+        count=1,
+        dtype="float32",
+        crs=CRS,
+        transform=transform,
+        nodata=np.nan,
+        compress="lzw",
+    ) as dst:
         dst.write(dtm, 1)
     print(f"✓ DEM: {out_path}")

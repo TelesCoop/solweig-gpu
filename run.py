@@ -7,10 +7,11 @@ BASE = "inputs"
 OUTPUTS = Path("outputs")
 
 MET_FILES = {
-    "2020_current":     "data/01-CURRENT_14jul.txt",}
-    #"2060_mid_century": "data/02-MID-CENTURY_14jul.txt",
-    #"2090_end_century": "data/03-END-CENTURY_14jul.txt",
-#}
+    "2020_current": "data/01-CURRENT_14jul.txt",
+}
+# "2060_mid_century": "data/02-MID-CENTURY_14jul.txt",
+# "2090_end_century": "data/03-END-CENTURY_14jul.txt",
+# }
 DATE_STR = "1985-07-14"  # matches iy=1985, id=195 in all met files
 
 for scenario, met_file in MET_FILES.items():

@@ -26,8 +26,18 @@ def prepare_trees(bbox, veg_tif, out_path, res=1):
             resampling=Resampling.bilinear,
         )
     result = np.clip(result, 0, None)
-    with rasterio.open(out_path, "w", driver="GTiff", height=height, width=width,
-                       count=1, dtype="float32", crs=CRS, transform=transform,
-                       nodata=0, compress="lzw") as dst:
+    with rasterio.open(
+        out_path,
+        "w",
+        driver="GTiff",
+        height=height,
+        width=width,
+        count=1,
+        dtype="float32",
+        crs=CRS,
+        transform=transform,
+        nodata=0,
+        compress="lzw",
+    ) as dst:
         dst.write(result, 1)
     print(f"✓ Trees: {out_path}")

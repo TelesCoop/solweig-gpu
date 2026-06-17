@@ -24,27 +24,32 @@ COSIA_WMS = "https://data.geopf.fr/wms-r/wms"
 COSIA_LAYER = "IGNF_COSIA_2021-2023"
 
 # COSIA legend RGB → SOLWEIG class (1=paved,2=building,3=conifer,4=deciduous,5=grass,6=bare,7=water)
-_COSIA_PALETTE = np.array([
-    [206, 112, 121],  # Bâtiment → 2
-    [152, 119, 82],   # Route/minéral → 1
-    [166, 170, 183],  # Zone imperméable → 1
-    [98,  208, 255],  # Piscine → 7
-    [187, 176, 150],  # Zone perméable → 1
-    [51,  117, 161],  # Surface eau → 7
-    [233, 239, 254],  # Neige → 1
-    [18,  100,  33],  # Conifère → 3
-    [76,  145,  41],  # Feuillu → 4
-    [181, 195,  53],  # Broussaille → 5
-    [176, 130, 144],  # Vigne → 5
-    [140, 215, 106],  # Pelouse → 5
-    [222, 207,  85],  # Culture → 5
-    [208, 163,  73],  # Terre labourée → 6
-    [185, 226, 212],  # Serre → 2
-    [223, 139,  82],  # Sol nu → 6
-    [34,   34,  34],  # Autre → 1
-], dtype=np.float32)
+_COSIA_PALETTE = np.array(
+    [
+        [206, 112, 121],  # Bâtiment → 2
+        [152, 119, 82],  # Route/minéral → 1
+        [166, 170, 183],  # Zone imperméable → 1
+        [98, 208, 255],  # Piscine → 7
+        [187, 176, 150],  # Zone perméable → 1
+        [51, 117, 161],  # Surface eau → 7
+        [233, 239, 254],  # Neige → 1
+        [18, 100, 33],  # Conifère → 3
+        [76, 145, 41],  # Feuillu → 4
+        [181, 195, 53],  # Broussaille → 5
+        [176, 130, 144],  # Vigne → 5
+        [140, 215, 106],  # Pelouse → 5
+        [222, 207, 85],  # Culture → 5
+        [208, 163, 73],  # Terre labourée → 6
+        [185, 226, 212],  # Serre → 2
+        [223, 139, 82],  # Sol nu → 6
+        [34, 34, 34],  # Autre → 1
+    ],
+    dtype=np.float32,
+)
 
-_COSIA_CLASSES = np.array([2, 1, 1, 7, 1, 7, 1, 3, 4, 5, 5, 5, 5, 6, 2, 6, 1], dtype=np.uint8)
+_COSIA_CLASSES = np.array(
+    [2, 1, 1, 7, 1, 7, 1, 3, 4, 5, 5, 5, 5, 6, 2, 6, 1], dtype=np.uint8
+)
 
 
 def _fetch_cosia(bbox, transform, width, height):
@@ -79,9 +84,12 @@ def _fetch_cosia(bbox, transform, width, height):
     src_transform = from_bounds(x1, y1, x2, y2, width, height)
     lc_out = np.ones((height, width), dtype=np.uint8)
     reproject(
-        lc_3857, lc_out,
-        src_transform=src_transform, src_crs="EPSG:3857",
-        dst_transform=transform, dst_crs=CRS,
+        lc_3857,
+        lc_out,
+        src_transform=src_transform,
+        src_crs="EPSG:3857",
+        dst_transform=transform,
+        dst_crs=CRS,
         resampling=Resampling.nearest,
     )
     lc_out[lc_out == 0] = 1
@@ -106,14 +114,19 @@ def prepare_landcover(bbox, trees_path, out_path, bld_cache, res=1):
 
     try:
         x1, y1, x2, y2 = to_2154(bbox)
-        resp = requests.get(WATER_WFS + f"&BBOX={x1},{y1},{x2},{y2},EPSG:2154", timeout=60)
+        resp = requests.get(
+            WATER_WFS + f"&BBOX={x1},{y1},{x2},{y2},EPSG:2154", timeout=60
+        )
         if resp.ok:
             water = gpd.read_file(BytesIO(resp.content))
             if not water.empty:
                 water = water.to_crs(CRS)
                 water_r = rasterize(
                     [(g, 7) for g in water.geometry if g is not None],
-                    out_shape=(height, width), transform=transform, fill=0, dtype="uint8",
+                    out_shape=(height, width),
+                    transform=transform,
+                    fill=0,
+                    dtype="uint8",
                 )
                 lc[water_r == 7] = 7
     except Exception as e:
@@ -126,12 +139,25 @@ def prepare_landcover(bbox, trees_path, out_path, bld_cache, res=1):
     if not gdf.empty:
         bld_r = rasterize(
             [(g, 2) for g in gdf.geometry if g is not None],
-            out_shape=(height, width), transform=transform, fill=0, dtype="uint8",
+            out_shape=(height, width),
+            transform=transform,
+            fill=0,
+            dtype="uint8",
         )
         lc[bld_r == 2] = 2
 
-    with rasterio.open(out_path, "w", driver="GTiff", height=height, width=width,
-                       count=1, dtype="uint8", crs=CRS, transform=transform,
-                       nodata=0, compress="lzw") as dst:
+    with rasterio.open(
+        out_path,
+        "w",
+        driver="GTiff",
+        height=height,
+        width=width,
+        count=1,
+        dtype="uint8",
+        crs=CRS,
+        transform=transform,
+        nodata=0,
+        compress="lzw",
+    ) as dst:
         dst.write(lc, 1)
     print(f"✓ Landcover: {out_path}")
