@@ -55,6 +55,17 @@ uv run python prepare_data.py --resolution 2
 
 Les tuiles LiDAR sont stockées dans `data/lidar_tiles/` et ne sont pas re-téléchargées si déjà existantes. Pareil pour les emprises des bâtiments BD TOPP qui sont stockées  dans `inputs/cache_buildings.geojson`.
 
+### Codes d'occupation du sol UMEP
+
+| Code | Classe |
+|---|---|
+| 1 | Revêtement |
+| 2 | Bâtiments |
+| 3 | Eau |
+| 4 | Végétation |
+| 5 | Sol nu |
+
+
 ## Étape 2 - Lancer SOLWEIG
 
 ```bash
@@ -105,12 +116,33 @@ inputs/output_folder
 Chaque dossier contient des GeoTIFF par tuile (UTCI, Tmrt, ...) produits par SOLWEIG-GPU.
 Les résultats UTCI sont multi-bandes avec une bande par heure (bande 0 = 00h UTC, bande 1 = 01h00 UTC, etc)
 
-## Codes d'occupation du sol UMEP
+## Étape 3 - Calculer le PET
 
-| Code | Classe |
+```bash
+uv run python compute_pet.py
+```
+
+On calcule à partir des sorties `TMRT_*.tif` (une bande par heure) et des variables météo horaires (`Tair`, `U`, `RH`) du fichier météo d'entrée, via une régression polynomiale de degré 5 (`utils/pet.py`), le **PET (Physiological Equivalent Temperature)**.
+
+Pour chaque tuile, le script écrit à côté du `TMRT_*.tif` :
+
+| Fichier de sortie | Contenu |
 |---|---|
-| 1 | Revêtement |
-| 2 | Bâtiments |
-| 3 | Eau |
-| 4 | Végétation |
-| 5 | Sol nu |
+| `PET_<tuile>.tif` | PET en °C, float32, multi-bandes (une bande par heure) |
+| `PET_index_<tuile>.tif` | Indice de stress thermique, uint8 (1–9), une bande par heure |
+
+L'indice applique les classes standard de perception thermique PET (Matzarakis & Mayer) :
+
+| Indice | PET [°C] | Perception |
+|---|---|---|
+| 1 | < 4 | stress froid extrême |
+| 2 | 4 – 8 | fort stress froid |
+| 3 | 8 – 13 | stress froid modéré |
+| 4 | 13 – 18 | léger stress froid |
+| 5 | 18 – 23 | pas de stress thermique |
+| 6 | 23 – 29 | léger stress chaud |
+| 7 | 29 – 35 | stress chaud modéré |
+| 8 | 35 – 41 | fort stress chaud |
+| 9 | > 41 | stress chaud extrême |
+
+La valeur `0` de l'indice correspond aux pixels sans donnée. Les seuils sont définis dans `utils/pet.py` (`PET_BINS`) si besoin de les ajuster.
