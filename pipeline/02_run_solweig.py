@@ -18,7 +18,7 @@ MET_FILES = {
 # }
 DATE_STR = "1985-07-14"  # matches iy=1985, id=195 in all met files
 
-N_WORKERS = int(os.environ.get("SOLWEIG_PARALLEL", "2"))
+N_WORKERS = int(os.environ.get("SOLWEIG_PARALLEL", "1"))
 GPUS = os.environ.get("SOLWEIG_GPUS", "0").split(",")
 
 SAVE_KWARGS = dict(save_tmrt=True, save_svf=True, save_shadow=True)
