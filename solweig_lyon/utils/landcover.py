@@ -9,6 +9,7 @@ from pyproj import Transformer
 from rasterio.features import rasterize
 from rasterio.transform import from_bounds
 from rasterio.warp import Resampling, reproject
+from scipy.ndimage import distance_transform_edt
 
 from .buildings import _download_buildings
 from solweig_lyon.config import CRS
@@ -53,19 +54,18 @@ _COSIA_CLASSES = np.array(
 )
 
 
-def _fetch_cosia(bbox, transform, width, height):
-    t = Transformer.from_crs(CRS, "EPSG:3857", always_xy=True)
-    xmin, ymin, xmax, ymax = bbox
-    x1, y1 = t.transform(xmin, ymin)
-    x2, y2 = t.transform(xmax, ymax)
+COSIA_TILE = 1024
 
+
+def _fetch_cosia_tile(tile_bbox, tw, th):
+    tx1, ty1, tx2, ty2 = tile_bbox
     url = (
         f"{COSIA_WMS}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap"
-        f"&LAYERS={COSIA_LAYER}&BBOX={x1},{y1},{x2},{y2}"
-        f"&CRS=EPSG:3857&WIDTH={width}&HEIGHT={height}&FORMAT=image/geotiff&STYLES="
+        f"&LAYERS={COSIA_LAYER}&BBOX={tx1},{ty1},{tx2},{ty2}"
+        f"&CRS=EPSG:3857&WIDTH={tw}&HEIGHT={th}&FORMAT=image/geotiff&STYLES="
     )
     resp = requests.get(url, timeout=90)
-    if not resp.ok:
+    if not resp.ok or not resp.headers.get("content-type", "").startswith("image"):
         return None
 
     with rasterio.open(BytesIO(resp.content)) as src:
@@ -79,7 +79,30 @@ def _fetch_cosia(bbox, transform, width, height):
         min_dist[mask] = dist[mask]
         nearest[mask] = i
 
-    lc_3857 = _COSIA_CLASSES[nearest].reshape(height, width)
+    return _COSIA_CLASSES[nearest].reshape(th, tw)
+
+
+def _fetch_cosia(bbox, transform, width, height):
+    t = Transformer.from_crs(CRS, "EPSG:3857", always_xy=True)
+    xmin, ymin, xmax, ymax = bbox
+    x1, y1 = t.transform(xmin, ymin)
+    x2, y2 = t.transform(xmax, ymax)
+
+    sx = (x2 - x1) / width
+    sy = (y2 - y1) / height
+    lc_3857 = np.zeros((height, width), dtype=np.uint8)
+    for py0 in range(0, height, COSIA_TILE):
+        py1 = min(py0 + COSIA_TILE, height)
+        ty_top = y2 - py0 * sy
+        ty_bot = y2 - py1 * sy
+        for px0 in range(0, width, COSIA_TILE):
+            px1 = min(px0 + COSIA_TILE, width)
+            tile_bbox = (x1 + px0 * sx, ty_bot, x1 + px1 * sx, ty_top)
+            tile = _fetch_cosia_tile(tile_bbox, px1 - px0, py1 - py0)
+            if tile is None:
+                return None
+            lc_3857[py0:py1, px0:px1] = tile
+
     lc_3857[lc_3857 == 0] = 1
 
     src_transform = from_bounds(x1, y1, x2, y2, width, height)
@@ -134,7 +157,9 @@ def prepare_landcover(bbox, trees_path, out_path, bld_cache, res=1):
         print(f"  Warning: water layer failed ({e}), skipping")
 
     with rasterio.open(trees_path) as src:
-        lc[src.read(1) > 0] = 5
+        tree_mask = src.read(1) > 0
+    ind = distance_transform_edt(tree_mask, return_distances=False, return_indices=True)
+    lc[tree_mask] = lc[tuple(ind)][tree_mask]
 
     gdf = _download_buildings(bbox, bld_cache)
     if not gdf.empty:
