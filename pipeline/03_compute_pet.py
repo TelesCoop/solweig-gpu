@@ -4,7 +4,13 @@ from pathlib import Path
 import numpy as np
 import rasterio
 
-from solweig_lyon.pet import pet_polynomial, PET_BINS, _HUSS_VALUES, specific_humidity
+from solweig_lyon.pet import (
+    pet_polynomial,
+    wind_speed_from_svf,
+    PET_BINS,
+    _HUSS_VALUES,
+    specific_humidity,
+)
 
 OUTPUTS = Path("outputs")
 
@@ -42,6 +48,10 @@ def pet_to_index(pet):
 
 
 def process_tile(tmrt_path, met):
+    svf_path = tmrt_path.with_name(tmrt_path.name.replace("TMRT", "SVF"))
+    with rasterio.open(svf_path) as svf_src:
+        svf = svf_src.read(1).astype(np.float64)
+
     with rasterio.open(tmrt_path) as src:
         profile = src.profile
         band_tags = [src.tags(b) for b in range(1, src.count + 1)]
@@ -51,8 +61,9 @@ def process_tile(tmrt_path, met):
             if ts not in met:
                 raise KeyError(f"{tmrt_path} band {b}: no met row for {ts}")
             ta, u, rh = met[ts]
+            va = wind_speed_from_svf(u, svf)
             tmrt = src.read(b).astype(np.float64)
-            pet = pet_polynomial(tmrt - ta, ta, u, rh)
+            pet = pet_polynomial(tmrt - ta, ta, va, rh)
             pet_bands.append(pet.astype(np.float16))
 
     pet_stack = np.stack(pet_bands)

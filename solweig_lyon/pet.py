@@ -2,6 +2,9 @@ import numpy as np
 
 PET_BINS = [4, 8, 13, 18, 23, 29, 35, 41]
 
+WVR_B = 2.22
+WIND_FLOOR = 0.15
+
 _HUSS_VALUES = np.array([0.009944, 0.009787, 0.009972])
 
 _INTERCEPTS = (11.40678267940725, 10.616689769792373, 11.567176187184039)
@@ -201,6 +204,12 @@ def specific_humidity(ta, rh):
     pv = psv * np.asarray(rh, dtype=float) / 100
     w = 0.621945 * pv / (101325 - pv)
     return w / (1 + w)
+
+
+def wind_speed_from_svf(u_met, svf):
+    svf = np.asarray(svf, dtype=float)
+    wvr = WVR_B * svf**2 - (2.0 / 3.0) * WVR_B * svf**3
+    return np.maximum(u_met * wvr, WIND_FLOOR)
 
 
 def pet_polynomial(d_tmrt, ta, va, rh):
