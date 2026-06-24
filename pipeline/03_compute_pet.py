@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import rasterio
 
-from solweig_lyon.pet import pet_polynomial, PET_BINS
+from solweig_lyon.pet import pet_polynomial, PET_BINS, _HUSS_VALUES, specific_humidity
 
 OUTPUTS = Path("outputs")
 
@@ -88,6 +88,19 @@ def main():
         if not scen_dir.exists():
             continue
         met = read_met(met_file)
+        buckets = {
+            int(np.argmin(np.abs(_HUSS_VALUES - specific_humidity(ta, rh))))
+            for ta, _, rh in met.values()
+        }
+        assert (
+            len(buckets) == 1
+        ), f"{scenario}: humidity bucket changes across timesteps: {buckets}"
+        ta0, _, rh0 = next(iter(met.values()))
+        huss = specific_humidity(ta0, rh0)
+        nearest = _HUSS_VALUES[next(iter(buckets))]
+        assert (
+            abs(huss - nearest) < 0.001
+        ), f"{scenario}: huss {huss:.4f} too far from nearest RHSD {nearest:.4f}"
         for tmrt_path in sorted(scen_dir.glob("*/TMRT_*.tif")):
             print(tmrt_path)
             process_tile(tmrt_path, met)
