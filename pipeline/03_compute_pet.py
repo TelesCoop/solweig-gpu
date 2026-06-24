@@ -1,3 +1,6 @@
+import time
+from collections import defaultdict
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -13,6 +16,16 @@ from solweig_lyon.pet import (
 )
 
 OUTPUTS = Path("outputs")
+
+TIMINGS = defaultdict(float)
+
+
+@contextmanager
+def timed(step):
+    t0 = time.perf_counter()
+    yield
+    TIMINGS[step] += time.perf_counter() - t0
+
 
 MET_FILES = {
     "2020_current": "data/01-CURRENT_14jul.txt",
@@ -49,7 +62,7 @@ def pet_to_index(pet):
 
 def process_tile(tmrt_path, met):
     svf_path = tmrt_path.with_name(tmrt_path.name.replace("TMRT", "SVF"))
-    with rasterio.open(svf_path) as svf_src:
+    with timed("read_svf"), rasterio.open(svf_path) as svf_src:
         svf = svf_src.read(1).astype(np.float64)
 
     with rasterio.open(tmrt_path) as src:
@@ -61,28 +74,34 @@ def process_tile(tmrt_path, met):
             if ts not in met:
                 raise KeyError(f"{tmrt_path} band {b}: no met row for {ts}")
             ta, u, rh = met[ts]
-            va = wind_speed_from_svf(u, svf)
-            tmrt = src.read(b).astype(np.float64)
-            pet = pet_polynomial(tmrt - ta, ta, va, rh)
+            with timed("wind_speed_from_svf"):
+                va = wind_speed_from_svf(u, svf)
+            with timed("read_tmrt"):
+                tmrt = src.read(b).astype(np.float64)
+            with timed("pet_polynomial"):
+                pet = pet_polynomial(tmrt - ta, ta, va, rh)
             pet_bands.append(pet.astype(np.float16))
 
-    pet_stack = np.stack(pet_bands)
-    index_stack = np.stack([pet_to_index(p) for p in pet_bands])
+    with timed("stack"):
+        pet_stack = np.stack(pet_bands)
+        index_stack = np.stack([pet_to_index(p) for p in pet_bands])
 
-    write_stack(
-        tmrt_path,
-        "PET",
-        pet_stack,
-        {**profile, "dtype": "float16", "nodata": None, "compress": "deflate"},
-        band_tags,
-    )
-    write_stack(
-        tmrt_path,
-        "PET_index",
-        index_stack,
-        {**profile, "dtype": "uint8", "nodata": 0, "compress": "deflate"},
-        band_tags,
-    )
+    with timed("write_pet"):
+        write_stack(
+            tmrt_path,
+            "PET",
+            pet_stack,
+            {**profile, "dtype": "float16", "nodata": None, "compress": "deflate"},
+            band_tags,
+        )
+    with timed("write_pet_index"):
+        write_stack(
+            tmrt_path,
+            "PET_index",
+            index_stack,
+            {**profile, "dtype": "uint8", "nodata": 0, "compress": "deflate"},
+            band_tags,
+        )
 
 
 def write_stack(tmrt_path, prefix, stack, profile, band_tags):
@@ -115,6 +134,12 @@ def main():
         for tmrt_path in sorted(scen_dir.glob("*/TMRT_*.tif")):
             print(tmrt_path)
             process_tile(tmrt_path, met)
+
+    total = sum(TIMINGS.values())
+    print("\n--- timings (s) ---")
+    for step, secs in sorted(TIMINGS.items(), key=lambda kv: -kv[1]):
+        print(f"{step:20s} {secs:8.2f}  {secs / total:5.1%}")
+    print(f"{'total':20s} {total:8.2f}")
 
 
 if __name__ == "__main__":
