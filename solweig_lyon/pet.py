@@ -3,7 +3,7 @@ import numpy as np
 PET_BINS = [4, 8, 13, 18, 23, 29, 35, 41]
 
 WVR_B = 2.22
-WIND_FLOOR = 0.15
+WIND_FLOOR = 0.2
 
 _HUSS_VALUES = np.array([0.009944, 0.009787, 0.009972])
 
