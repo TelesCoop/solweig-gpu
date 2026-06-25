@@ -9,9 +9,9 @@ from solweig_lyon.config import OVERLAP
 OUTPUTS = Path("outputs")
 
 PRODUCTS = {
-    "PET": "float16",
+    "PET": "float32",
     "PET_index": "uint8",
-    "Shadow": "float16",
+    "Shadow": "float32",
 }
 
 
