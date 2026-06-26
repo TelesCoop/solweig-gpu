@@ -80,7 +80,7 @@ def process_tile(tmrt_path, met):
                 tmrt = src.read(b).astype(np.float64)
             with timed("pet_polynomial"):
                 pet = pet_polynomial(tmrt - ta, ta, va, rh)
-            pet_bands.append(pet.astype(np.float16))
+            pet_bands.append(pet.astype(np.float32))
 
     with timed("stack"):
         pet_stack = np.stack(pet_bands)
@@ -91,7 +91,7 @@ def process_tile(tmrt_path, met):
             tmrt_path,
             "PET",
             pet_stack,
-            {**profile, "dtype": "float16", "nodata": None, "compress": "deflate"},
+            {**profile, "dtype": "float32", "nodata": None, "compress": "deflate"},
             band_tags,
         )
     with timed("write_pet_index"):
