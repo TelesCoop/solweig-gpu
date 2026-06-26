@@ -589,9 +589,9 @@ wheels = [
 
 [[package]]
 name = "gdal"
-version = "3.9.3"
+version = "3.13.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/53/3d/aa2f485d00751546e3c68dda6804f62f3589a8d62074b5b2b5ea2000053e/gdal-3.9.3.tar.gz", hash = "sha256:b4026010883b37d159fa43aee3ecb28bb466bd9d7e085c4d623d858edd6c62b9", size = 840806, upload-time = "2024-10-14T14:04:23.944Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/28/58/c1d628c5b5a38d31e93e825199fd4dfd39b658104a52dfce3228d1067042/gdal-3.13.0.tar.gz", hash = "sha256:b440bcecbcdb96690a74da223142f2d51c6a540ee78674e10f9dca933d0e9006", size = 940507, upload-time = "2026-05-08T10:33:19.112Z" }
 
 [[package]]
 name = "geopandas"
@@ -2310,7 +2310,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "gdal", specifier = "==3.9.3" },
+    { name = "gdal", specifier = "==3.13.0" },
     { name = "geopandas" },
     { name = "laspy", extras = ["lazrs"] },
     { name = "numba", specifier = ">=0.65.1" },
