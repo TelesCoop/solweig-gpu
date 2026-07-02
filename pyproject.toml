@@ -3,7 +3,7 @@ name = "solweig-lyon"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
-    "gdal==3.9.3",
+    "gdal==3.13.1",
     "geopandas",
     "laspy[lazrs]",
     "numba>=0.65.1",
