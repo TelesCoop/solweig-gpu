@@ -1,6 +1,7 @@
 import multiprocessing as mp
 import os
 import shutil
+import time
 from pathlib import Path
 
 from solweig_gpu import preprocess, run_utci_tiles, run_walls_aspect
@@ -47,6 +48,7 @@ def main():
     ctx = mp.get_context("spawn")
     for scenario, met_file in MET_FILES.items():
         print(f"\n=== {scenario} ===")
+        t0 = time.perf_counter()
         preprocess_dir = preprocess(
             base_path=BASE,
             selected_date_str=DATE_STR,
@@ -86,6 +88,9 @@ def main():
                 p.join()
                 if p.exitcode != 0:
                     raise RuntimeError(f"tile worker failed (exit {p.exitcode})")
+
+        elapsed = time.perf_counter() - t0
+        print(f"  solweig_gpu total={elapsed:.1f}s (N_WORKERS={N_WORKERS})")
 
         out_src = Path(BASE) / "output_folder"
         out_dst = OUTPUTS / scenario
