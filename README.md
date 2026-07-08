@@ -2,7 +2,10 @@
 
 Analyse du confort thermique sur la métropole de Lyon à l'aide de [SOLWEIG-GPU](https://github.com/nvnsudharsan/SOLWEIG-GPU).
 
-Prépare les données d'entrée à partir des sources ouvertes françaises (Vegestrate, fichiers météo UMEP du CETHIL, LiDAR GrandLyon, BD TOPO, COSIA) et lance trois scénarios climatiques (2020 / 2060 / 2090) pour le 14 juillet.
+La méthodologie provient d'une [étude](https://www.sciencedirect.com/science/article/abs/pii/S0360132325007188) de Damien David et Marjorie Salles de Université de Lyon, UCBL, INSA Lyon, CNRS,[CETHIL](https://cethil.insa-lyon.fr/fr).
+
+Les données d'entrée proviennent de sources ouvertes françaises ([Vegestrate](carte.iarbre.fr), fichiers météo UMEP du CETHIL, LiDAR GrandLyon, BD TOPO, COSIA). 
+Les trois scénarios climatiques (2020 / 2060 / 2090), pour une journée typique au 14 juillet, proviennent de modélisation au CETHIL.
 
 ## Installation
 
@@ -43,7 +46,7 @@ Chaque étape se lance avec `uv run python pipeline/<script>` (voir ci-dessous).
 
 ## Étape 1 - Préparer les données
 
-La zone par défaut de test est vers Confluence (2 x 2 km, ~16 tuiles LiDAR).
+La zone par défaut de test est vers Confluence (5 x 5 km).
 
 ```bash
 uv run python pipeline/01_prepare_data.py
@@ -109,7 +112,7 @@ SOLWEIG_GPUS=0,1 SOLWEIG_PARALLEL=2 uv run python pipeline/02_run_solweig.py
 SOLWEIG_PARALLEL=1 uv run python pipeline/02_run_solweig.py
 ```
 
-Attention : avec **un seul GPU partagé**, la parallélisation n'apporte qu'un gain modeste (les calculs GPU se sérialisent sur le même appareil) et chaque processus consomme sa propre mémoire GPU — un nombre de processus trop élevé peut provoquer un dépassement de mémoire (OOM). Commencer à 2 et surveiller la mémoire. Le vrai gain (×N) vient de N GPU via `SOLWEIG_GPUS`.
+Attention : avec **un seul GPU partagé**, la parallélisation n'apporte qu'un léger gain (les calculs GPU se sérialisent sur le même appareil) et chaque processus consomme sa propre mémoire GPU. Trop de processus va provoquer un dépassement de mémoire (OOM). Commencer à 2 et surveiller la mémoire. Le vrai gain (×N) vient de N GPU via `SOLWEIG_GPUS`.
 
 On stocke comme résultat intermédiaires les SVF (sky view factor) ainsi que le calcul des ombres (TIF multi band avec les ondes heure par heure).
 Ces résultats intermédiaires sont dans :
@@ -139,16 +142,16 @@ Les résultats UTCI sont multi-bandes avec une bande par heure (bande 0 = 00h UT
 uv run python pipeline/03_compute_pet.py
 ```
 
-On calcule à partir des sorties `TMRT_*.tif` (une bande par heure) et des variables météo horaires (`Tair`, `U`, `RH`) du fichier météo d'entrée, via une régression polynomiale de degré 5 (`solweig_lyon/pet.py`), le **PET (Physiological Equivalent Temperature)**.
+On calcule à partir des sorties `TMRT_*.tif` (une bande par heure) et du `SVF` et des variables météo horaires (`Tair`, `U`, `RH`) du fichier météo d'entrée, via une régression polynomiale de degré 5 (`solweig_lyon/pet.py`), le **PET (Physiological Equivalent Temperature)**.
 
 Pour chaque tuile, le script écrit à côté du `TMRT_*.tif` :
 
 | Fichier de sortie | Contenu |
 |---|---|
 | `PET_<tuile>.tif` | PET en °C, float16 compressé, multi-bandes (une bande par heure) |
-| `PET_index_<tuile>.tif` | Indice de stress thermique, uint8 (1–9), une bande par heure |
+| `PET_index_<tuile>.tif` | Seuillage du PET, uint8 (1–9), une bande par heure |
 
-L'indice applique les classes standard de perception thermique PET (Matzarakis & Mayer) :
+Le seuillage se fait selon les classes standard de perception thermique PET (Matzarakis & Mayer) :
 
 | Indice | PET [°C] | Perception |
 |---|---|---|
@@ -172,7 +175,7 @@ uv run python pipeline/04_merge_outputs.py
 
 Pour chaque scénario, fusionne les tuiles en un seul raster par produit (`PET`, `PET_index`, `Shadow`) dans le dossier du scénario.
 
-Les tuiles se chevauchent de `OVERLAP` pixels (voir `solweig_lyon/config.py`). On rogne la moitié de ce chevauchement sur chaque bord intérieur pour supprimer les artefacts de bord et aligner les tuiles sans recouvrement. La fusion se fait tuile par tuile (lecture fenêtrée) pour rester dans la mémoire sur l'ensemble de la métropole.
+Les tuiles se chevauchent de `OVERLAP` pixels (voir `solweig_lyon/config.py`). Le chevauchement sert à supprimer les artefacts de bord. 
 
 | Fichier de sortie | dtype |
 |---|---|
