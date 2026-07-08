@@ -181,3 +181,6 @@ Les tuiles se chevauchent de `OVERLAP` pixels (voir `solweig_lyon/config.py`). O
 | `Shadow.tif` | float16 |
 
 Sortie compressée en DEFLATE, multi-bandes (une bande par heure).
+
+## Etape 6 - Retirer le masque des batiments
+

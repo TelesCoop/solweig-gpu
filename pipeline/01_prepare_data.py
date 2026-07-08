@@ -16,7 +16,7 @@ def main():
         type=float,
         metavar=("XMIN", "YMIN", "XMAX", "YMAX"),
         default=list(DEFAULT_BBOX),
-        help="Bounding box in EPSG:3946 (default: Confluence 2×2 km)",
+        help="Bounding box in EPSG:3946 (default: Confluence 5x5km)",
     )
     parser.add_argument(
         "--resolution", type=float, default=1.0, help="Output resolution in meters"
