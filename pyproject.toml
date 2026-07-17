@@ -13,7 +13,7 @@ dependencies = [
     "rasterio",
     "requests",
     "scipy",
-    "torch==2.7.1",
+    "torch==2.13.0",
     "solweig-gpu @ git+https://github.com/nvnsudharsan/SOLWEIG-GPU@main",
 ]
 
