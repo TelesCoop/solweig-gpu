@@ -589,9 +589,9 @@ wheels = [
 
 [[package]]
 name = "gdal"
-version = "3.9.3"
+version = "3.4.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/53/3d/aa2f485d00751546e3c68dda6804f62f3589a8d62074b5b2b5ea2000053e/gdal-3.9.3.tar.gz", hash = "sha256:b4026010883b37d159fa43aee3ecb28bb466bd9d7e085c4d623d858edd6c62b9", size = 840806, upload-time = "2024-10-14T14:04:23.944Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c5/f6/4fed0cacc8a6fb5d7659a05d300e01a1a13e2d9febf1911b05695057c662/GDAL-3.4.1.tar.gz", hash = "sha256:b19e8143bc2c0d3e222789a465d82b6874236eb78801aec608bf5c8c44d20fcf", size = 755854, upload-time = "2022-01-04T11:10:53.023Z" }
 
 [[package]]
 name = "geopandas"
@@ -2263,6 +2263,70 @@ wheels = [
 ]
 
 [[package]]
+name = "solweig"
+version = "0.1.0b45"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.11' and platform_machine == 'ARM64' and sys_platform == 'win32'",
+    "(python_full_version < '3.11' and platform_machine != 'ARM64') or (python_full_version < '3.11' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "numpy", marker = "python_full_version < '3.11'" },
+    { name = "pyproj", version = "3.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "shapely", marker = "python_full_version < '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ec/8b/74128fb0c158d915fee489fd738a4f9c5faf56f67a93384a4a7eaad7ab05/solweig-0.1.0b45.tar.gz", hash = "sha256:23130de8303132cd20b15d11842b9564faa869acbef8a05461c8d4113b7ad1a3", size = 283475, upload-time = "2026-02-17T13:02:51.788Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d0/af/9e4ac39349b65720482fb9f528376fb2751fcecc2755c3f2598fdd7d601f/solweig-0.1.0b45-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:2c4bc93d0ee231dcd34252abbbc84ccd42f6fe8f328a5aa576f976382db7ffc7", size = 2968001, upload-time = "2026-02-17T13:02:32.655Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/ff/7936e7039c8a86df5fc4524186ee9d57c005a59f44a75b2d854d3c7de851/solweig-0.1.0b45-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:2515b11524c0845f9dce055ed853568575adfcd5f5a0eaf1e15b76c2eafb38b5", size = 2863216, upload-time = "2026-02-17T13:02:34.732Z" },
+    { url = "https://files.pythonhosted.org/packages/1c/a0/ed73db4ffc3b10e72eebf323a55687398ae2a7c7e4d0b1d3634be4e771af/solweig-0.1.0b45-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f59d19413330027859b20d6b6566cadd9d93cdb81d1cf1c63f0802761cb8250b", size = 3560590, upload-time = "2026-02-17T13:02:36.275Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/1e/9aa27af07deb45be9962877a27c68ebbdb59be36dc9ae31563bede8ac2d2/solweig-0.1.0b45-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:835877babb49456ec592581db68d827e8ddbd352a2152712bc1e8c61220576d7", size = 3572393, upload-time = "2026-02-17T13:02:37.806Z" },
+    { url = "https://files.pythonhosted.org/packages/74/4c/0c4905383465ae800147938b05da4095be83b71e1fd4bf789bcad77f2e13/solweig-0.1.0b45-cp39-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:b5affd1fdda547df83270e35558fc5c00032e97e4d4b73d84f2a27b5b6ba621c", size = 3738033, upload-time = "2026-02-17T13:02:39.79Z" },
+    { url = "https://files.pythonhosted.org/packages/87/38/7ad93f294b3f3811281845ccd79f63b8952dfb4195c558caa570a40bda99/solweig-0.1.0b45-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:7eb94c82ac4dbebf6f0d769bbae1287a67af67d807b8521f590452e2e0a4d44e", size = 3853370, upload-time = "2026-02-17T13:02:41.782Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/82/a2b7f7d4fa360e3402ee019574e05d9e23e2502228170a8e26e72b582dd8/solweig-0.1.0b45-cp39-abi3-win_amd64.whl", hash = "sha256:852a49c8f82c36ab53a03f9a3b241af7426cd106d0e4e7f1f20ea0ef73366c54", size = 3414576, upload-time = "2026-02-17T13:02:43.598Z" },
+    { url = "https://files.pythonhosted.org/packages/29/26/957b740efdeb7e0f93f52343ccba98307aff4b3a7d2eb3a28878e7484a14/solweig-0.1.0b45-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e7c0ecd8d7b97a6c20c031fadad2cdfe8360ce5f0016e5d496d2f93b4bf8e74e", size = 3560208, upload-time = "2026-02-17T13:02:45.333Z" },
+    { url = "https://files.pythonhosted.org/packages/79/79/5d64b8dc30006c95e55f76a27beebefd8b0a654ef466a902d88ac8045744/solweig-0.1.0b45-pp311-pypy311_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:895a6887b2039d8c981d5f99bd058ba3acf0fecc88094716e57ea0322f8a3550", size = 3568296, upload-time = "2026-02-17T13:02:47.582Z" },
+]
+
+[[package]]
+name = "solweig"
+version = "0.1.0b92"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14' and platform_machine == 'ARM64' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and platform_machine != 'ARM64' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and platform_machine == 'ARM64' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and platform_machine != 'ARM64' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and platform_machine == 'ARM64' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and platform_machine != 'ARM64' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version == '3.11.*' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+]
+dependencies = [
+    { name = "numpy", marker = "python_full_version >= '3.11'" },
+    { name = "pillow", marker = "python_full_version >= '3.11'" },
+    { name = "pyproj", version = "3.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "rasterio", marker = "python_full_version >= '3.11'" },
+    { name = "shapely", marker = "python_full_version >= '3.11'" },
+    { name = "tqdm", marker = "python_full_version >= '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/64/42/55f1cb683414cf6a3e261f10a23824f8ca17eb90393a3fc91354ac2a13f3/solweig-0.1.0b92.tar.gz", hash = "sha256:3fe5856a0a308078584083568bb4e0630c8eee279d62fc6bf980e0837e7c35a3", size = 368168, upload-time = "2026-07-09T20:16:26.415Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/e9/39c31e89c92c333273307d83e7a0dc4fae9aba0301affd95ad7b6eecbe12/solweig-0.1.0b92-cp311-abi3-macosx_10_12_x86_64.whl", hash = "sha256:7cd8347acbee0cf1fd6dbf87e791add325f7a293aca14a2afb7b67d348e071aa", size = 2336592, upload-time = "2026-07-09T20:16:12.02Z" },
+    { url = "https://files.pythonhosted.org/packages/39/54/35173813956f064105a1c672fa09cd39482c8ac4b241ec58ae67ef4144dd/solweig-0.1.0b92-cp311-abi3-macosx_11_0_arm64.whl", hash = "sha256:92c58f189fdbe2c8ce4fb070366008873152944a9fad32b383af08413dc87a68", size = 2100116, upload-time = "2026-07-09T20:16:14.365Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/97/62498b172a6d292273385ec1d60e020793dec8b2483edb53a75631349e6d/solweig-0.1.0b92-cp311-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:541199e7e2c575307489d3bbcf6c4b6ffcada2c0922291a580973d75a8098d6f", size = 2510490, upload-time = "2026-07-09T20:16:16.361Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/56/81e4609025f44fb0a7addc79427869d6052ce1fdc819155358ff7208d23e/solweig-0.1.0b92-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b520e14a106baffb22176839d2a88abf2570eb602af551dd6aee71d5b9f27398", size = 2737120, upload-time = "2026-07-09T20:16:18.35Z" },
+    { url = "https://files.pythonhosted.org/packages/15/96/23c6de038962c0681f2a46610a8771a78a599151a0769a00be79c5c2128b/solweig-0.1.0b92-cp311-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:c58f830198038a3aa581f25c31d68655de183bcf52b819de12aea00927948334", size = 2687829, upload-time = "2026-07-09T20:16:20.46Z" },
+    { url = "https://files.pythonhosted.org/packages/a7/91/21a9ac390c31f11d5f1a69cd40d43045c60f7247781b5b5bb1a592cb48b0/solweig-0.1.0b92-cp311-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:d55a452c4b1edfae1eba3c0783e32deffb1b199353330d152d94df3296c627a1", size = 2951568, upload-time = "2026-07-09T20:16:22.429Z" },
+    { url = "https://files.pythonhosted.org/packages/a1/db/9445f03e5ad08f7ec8516e4a018b0fff0522365152ba26c245cb6f62e551/solweig-0.1.0b92-cp311-abi3-win_amd64.whl", hash = "sha256:6314cf2494e984c967fb316afae5cac6bdbc2a63e623a174ae8a984e69c702d5", size = 2821192, upload-time = "2026-07-09T20:16:24.298Z" },
+]
+
+[[package]]
 name = "solweig-gpu"
 version = "1.2.22"
 source = { git = "https://github.com/nvnsudharsan/SOLWEIG-GPU?rev=main#e9cf96cb612b115ee08dd9c4fbf271dbb2953ddd" }
@@ -2304,13 +2368,15 @@ dependencies = [
     { name = "requests" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "solweig", version = "0.1.0b45", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "solweig", version = "0.1.0b92", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "solweig-gpu" },
     { name = "torch" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "gdal", specifier = "==3.9.3" },
+    { name = "gdal", specifier = "==3.4.1" },
     { name = "geopandas" },
     { name = "laspy", extras = ["lazrs"] },
     { name = "numba", specifier = ">=0.65.1" },
@@ -2320,6 +2386,7 @@ requires-dist = [
     { name = "rasterio" },
     { name = "requests" },
     { name = "scipy" },
+    { name = "solweig" },
     { name = "solweig-gpu", git = "https://github.com/nvnsudharsan/SOLWEIG-GPU?rev=main" },
     { name = "torch", specifier = "==2.7.1", index = "https://download.pytorch.org/whl/cu126" },
 ]

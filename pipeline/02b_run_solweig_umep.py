@@ -14,10 +14,10 @@ TREES = BASE / "Trees.tif"
 LANDCOVER = BASE / "Landcover.tif"
 
 MET_FILES = {
-    "2020_current": "data/01-CURRENT_14jul.txt",
-}
+#    "2020_current": "data/01-CURRENT_14jul.txt",
 # "2060_mid_century": "data/02-MID-CENTURY_14jul.txt",
-# "2090_end_century": "data/03-END-CENTURY_14jul.txt",
+ "2090_end_century": "data/03-END-CENTURY_14jul.txt",
+}
 DATE_STR = "1985-07-14"  # iy=1985, id=195 dans les fichiers météo
 
 UTC_OFFSET = float(os.environ.get("SOLWEIG_UTC_OFFSET", "0"))
@@ -66,7 +66,7 @@ def main():
             start=f"{DATE_STR}T00:00:00",
             end=f"{DATE_STR}T23:00:00",
         )
-        location = solweig.Location.from_dsm_crs(str(DSM), utc_offset=UTC_OFFSET)
+        location = solweig.Location.from_dsm_crs(str(DSM), utc_offset=int(UTC_OFFSET))
         print(
             f"  {len(weather)} pas horaires | "
             f"{location.latitude:.4f}N {location.longitude:.4f}E UTC{UTC_OFFSET:+g}"
@@ -83,9 +83,9 @@ def main():
         t_prepare = time.perf_counter() - t0
 
         t0 = time.perf_counter()
-        summary = solweig.calculate(
+        summary = solweig.calculate_timeseries(
             surface=surface,
-            weather=weather,
+            weather_series=weather,
             location=location,
             output_dir=str(out_dir),
             outputs=["tmrt", "shadow"],
