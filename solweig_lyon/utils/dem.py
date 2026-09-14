@@ -87,12 +87,9 @@ def prepare_dem(bbox, lidar_csv, lidar_dir, out_path, res=1):
         )
 
     transform, width, height = grid(bbox, res)
-    srcs = [rasterio.open(p) for p in tile_tifs]
-    try:
-        mosaic, _ = merge(srcs, bounds=(xmin, ymin, xmax, ymax), res=res, nodata=np.nan)
-    finally:
-        for s in srcs:
-            s.close()
+    mosaic, _ = merge(
+        tile_tifs, bounds=(xmin, ymin, xmax, ymax), res=res, nodata=np.nan
+    )
 
     dtm = mosaic[0]
     valid = np.isfinite(dtm)
