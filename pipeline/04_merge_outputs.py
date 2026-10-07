@@ -5,6 +5,7 @@ from rasterio.transform import from_origin
 from rasterio.windows import Window
 
 from solweig_lyon.config import OVERLAP
+from solweig_lyon.run_config import iter_runs, log_step
 
 OUTPUTS = Path("outputs")
 
@@ -83,9 +84,10 @@ def merge_product(scen_dir, prefix, dtype):
 
 
 def main():
-    for scen_dir in sorted(p for p in OUTPUTS.iterdir() if p.is_dir()):
+    for scen_dir, _ in iter_runs(OUTPUTS):
         for prefix, dtype in PRODUCTS.items():
             merge_product(scen_dir, prefix, dtype)
+        log_step(scen_dir, "04_merge_outputs")
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ from pathlib import Path
 from solweig_gpu import preprocess, run_utci_tiles, run_walls_aspect
 
 from solweig_lyon.config import OVERLAP, TILE_SIZE
+from solweig_lyon.run_config import build_config, run_dir_name, write_run_config
 
 BASE = "inputs"
 OUTPUTS = Path("outputs")
@@ -46,7 +47,18 @@ def tile_keys(preprocess_dir):
 def main():
     ctx = mp.get_context("spawn")
     for scenario, met_file in MET_FILES.items():
-        print(f"\n=== {scenario} ===")
+        config = build_config(
+            scenario,
+            met_file,
+            params=dict(
+                date_str=DATE_STR,
+                tile_size=TILE_SIZE,
+                overlap=OVERLAP,
+                save_kwargs=SAVE_KWARGS,
+            ),
+            inputs_dir=BASE,
+        )
+        print(f"\n=== {scenario} -> {run_dir_name(config)} ===")
         preprocess_dir = preprocess(
             base_path=BASE,
             selected_date_str=DATE_STR,
@@ -88,11 +100,12 @@ def main():
                     raise RuntimeError(f"tile worker failed (exit {p.exitcode})")
 
         out_src = Path(BASE) / "output_folder"
-        out_dst = OUTPUTS / scenario
+        out_dst = OUTPUTS / run_dir_name(config)
         if out_src.exists():
             if out_dst.exists():
                 shutil.rmtree(out_dst)
             shutil.move(str(out_src), str(out_dst))
+            write_run_config(out_dst, config)
             print(f"  → {out_dst}")
 
 

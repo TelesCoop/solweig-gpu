@@ -30,6 +30,14 @@ import rasterio
 import rasterio.errors
 from rasterio.windows import Window
 
+from solweig_lyon.config import OVERLAP, TILE_SIZE
+from solweig_lyon.run_config import (
+    build_config,
+    log_step,
+    run_dir_name,
+    write_run_config,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 TILE_PEAK_GIB = 1.6  # UTCI + TMRT + Shadow + SVF cache for one tile, before cleanup
 MARGIN_GIB = 5
@@ -55,8 +63,19 @@ assert len(run.MET_FILES) == 1, "enable exactly one scenario in 02_run_solweig.p
 ((SCENARIO, MET_FILE),) = run.MET_FILES.items()
 PRE = Path(run.BASE) / "processed_inputs"
 WORK = Path(run.BASE) / "output_folder"
-FINAL = run.OUTPUTS / SCENARIO
-ARCHIVE = Path("outputs_old") / SCENARIO
+CONFIG = build_config(
+    SCENARIO,
+    MET_FILE,
+    params=dict(
+        date_str=run.DATE_STR,
+        tile_size=TILE_SIZE,
+        overlap=OVERLAP,
+        save_kwargs=run.SAVE_KWARGS,
+    ),
+    inputs_dir=run.BASE,
+)
+FINAL = run.OUTPUTS / run_dir_name(CONFIG)
+ARCHIVE = Path("outputs_old") / FINAL.name
 
 
 def free_gib():
@@ -206,6 +225,7 @@ def promote_to_outputs():
         print(f"archiving previous {FINAL} -> {ARCHIVE}", flush=True)
         shutil.move(str(FINAL), str(ARCHIVE))
     shutil.move(str(WORK), str(FINAL))
+    write_run_config(FINAL, CONFIG)
     print(f"{WORK} -> {FINAL}", flush=True)
 
 
@@ -267,6 +287,7 @@ def main():
     if args.dry_run:
         return
     merge_all(args.keep_tiles)
+    log_step(FINAL, "finish_production")
     print(f"\ndone, free {free_gib():.0f} GiB", flush=True)
     for prefix in MERGE_ORDER:
         p = FINAL / f"{prefix}.tif"

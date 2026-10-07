@@ -4,12 +4,10 @@ from pathlib import Path
 import numpy as np
 import rasterio
 
+from solweig_lyon.run_config import check_met_file, iter_runs, log_step
+
 OUTPUTS = Path("outputs")
 
-MET_FILES = {
-    "2020_current": "data/01-CURRENT_14jul.txt",
-}
-DEFAULT_MET_FILE = "data/01-CURRENT_14jul.txt"
 
 
 def direct_irradiance_by_hour(met_file):
@@ -69,13 +67,14 @@ def compute_sun_exposure(shadow_path, weights, out_path):
 
 
 def main():
-    for scen_dir in sorted(p for p in OUTPUTS.iterdir() if p.is_dir()):
+    for scen_dir, record in iter_runs(OUTPUTS):
         shadow_path = scen_dir / "Shadow.tif"
         if not shadow_path.exists():
             continue
-        met_file = MET_FILES.get(scen_dir.name, DEFAULT_MET_FILE)
-        weights = direct_irradiance_by_hour(met_file)
+        check_met_file(record)
+        weights = direct_irradiance_by_hour(record["config"]["met_file"]["path"])
         compute_sun_exposure(shadow_path, weights, scen_dir / "SunExposure.tif")
+        log_step(scen_dir, "05_sun_exposure")
 
 
 if __name__ == "__main__":

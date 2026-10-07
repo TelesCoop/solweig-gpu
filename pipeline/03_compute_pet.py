@@ -14,6 +14,7 @@ from solweig_lyon.pet import (
     _HUSS_VALUES,
     specific_humidity,
 )
+from solweig_lyon.run_config import check_met_file, iter_runs, log_step
 
 OUTPUTS = Path("outputs")
 INPUTS = Path("inputs")
@@ -26,13 +27,6 @@ def timed(step):
     t0 = time.perf_counter()
     yield
     TIMINGS[step] += time.perf_counter() - t0
-
-
-MET_FILES = {
-    #"2020_current": "data/01-CURRENT_14jul.txt",
-    # "2060_mid_century": "data/02-MID-CENTURY_14jul.txt",
-    "2090_end_century": "data/03-END-CENTURY_14jul.txt",
-}
 
 
 def read_met(met_file):
@@ -131,15 +125,15 @@ def check_humidity_bucket(scenario, met):
 
 
 def main():
-    for scenario, met_file in MET_FILES.items():
-        scen_dir = OUTPUTS / scenario
-        if not scen_dir.exists():
-            continue
-        met = read_met(met_file)
+    for scen_dir, record in iter_runs(OUTPUTS):
+        scenario = record["config"]["scenario"]
+        check_met_file(record)
+        met = read_met(record["config"]["met_file"]["path"])
         check_humidity_bucket(scenario, met)
         for tmrt_path in sorted(scen_dir.glob("*/TMRT_*.tif")):
             print(tmrt_path)
             process_tile(tmrt_path, met)
+        log_step(scen_dir, "03_compute_pet")
 
     total = sum(TIMINGS.values())
     print("\n--- timings (s) ---")

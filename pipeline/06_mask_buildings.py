@@ -10,6 +10,7 @@ from rasterio.warp import Resampling, reproject
 from rasterio.windows import Window
 
 from solweig_lyon.config import CRS
+from solweig_lyon.run_config import iter_runs, log_step
 from solweig_lyon.utils.geo import to_2154
 from solweig_lyon.utils.landcover import WATER_WFS
 
@@ -132,11 +133,12 @@ def mask_product(path, excl_mask, excl_transform, excl_crs):
 
 def main():
     excl_mask, excl_transform, excl_crs = excluded_mask()
-    for scen_dir in sorted(p for p in OUTPUTS.iterdir() if p.is_dir()):
+    for scen_dir, _ in iter_runs(OUTPUTS):
         for name in PRODUCTS:
             path = scen_dir / name
             if path.exists():
                 mask_product(path, excl_mask, excl_transform, excl_crs)
+        log_step(scen_dir, "06_mask_buildings")
 
 
 if __name__ == "__main__":
