@@ -92,7 +92,9 @@ Les tuiles LiDAR sont stockées dans `data/lidar_tiles/` et ne sont pas re-tél�
 uv run python pipeline/02_run_solweig.py
 ```
 
-Lance par défaut le scénario de 2020.
+Le scénario est choisi dans `MET_FILES` (un seul à la fois). Le script enchaîne prétraitement, SOLWEIG par lots de tuiles, PET (étape 3) et fusion (étape 4), en supprimant au fur et à mesure les fichiers intermédiaires (UTCI, TMRT, tuiles Shadow) pour limiter l'espace disque. Il est reprenable : relancer la même commande après une interruption. `--keep-tiles` conserve TMRT et Shadow (beaucoup plus d'espace).
+
+Le dossier de sortie est `outputs/<scénario>_<run_id>`. `run_id` est un hash du contenu des entrées (rasters, fichier météo) et des paramètres ; `run_config.json` dans ce dossier les décrit (avec la version du code) et les étapes 3 à 6 y consignent leur passage. Les étapes 3 à 6 ne traitent que les dossiers ayant un `run_config.json` valide.
 
 ### Parallélisation des tuiles
 
