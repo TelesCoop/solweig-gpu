@@ -16,6 +16,7 @@ from solweig_lyon.pet import (
 )
 
 OUTPUTS = Path("outputs")
+INPUTS = Path("inputs")
 
 TIMINGS = defaultdict(float)
 
@@ -28,9 +29,9 @@ def timed(step):
 
 
 MET_FILES = {
-    "2020_current": "data/01-CURRENT_14jul.txt",
+    #"2020_current": "data/01-CURRENT_14jul.txt",
     # "2060_mid_century": "data/02-MID-CENTURY_14jul.txt",
-    # "2090_end_century": "data/03-END-CENTURY_14jul.txt",
+    "2090_end_century": "data/03-END-CENTURY_14jul.txt",
 }
 
 
@@ -61,7 +62,8 @@ def pet_to_index(pet):
 
 
 def process_tile(tmrt_path, met):
-    svf_path = tmrt_path.with_name(tmrt_path.name.replace("TMRT", "SVF"))
+    tile = tmrt_path.parent.name
+    svf_path = INPUTS / "processed_inputs" / "SVF" / f"SkyViewFactor_{tile}.tif"
     with timed("read_svf"), rasterio.open(svf_path) as svf_src:
         svf = svf_src.read(1).astype(np.float64)
 
@@ -112,25 +114,29 @@ def write_stack(tmrt_path, prefix, stack, profile, band_tags):
             dst.update_tags(b, **tags)
 
 
+def check_humidity_bucket(scenario, met):
+    buckets = {
+        int(np.argmin(np.abs(_HUSS_VALUES - specific_humidity(ta, rh))))
+        for ta, _, rh in met.values()
+    }
+    assert (
+        len(buckets) == 1
+    ), f"{scenario}: humidity bucket changes across timesteps: {buckets}"
+    ta0, _, rh0 = next(iter(met.values()))
+    huss = specific_humidity(ta0, rh0)
+    nearest = _HUSS_VALUES[next(iter(buckets))]
+    assert (
+        abs(huss - nearest) < 0.001
+    ), f"{scenario}: huss {huss:.4f} too far from nearest RHSD {nearest:.4f}"
+
+
 def main():
     for scenario, met_file in MET_FILES.items():
         scen_dir = OUTPUTS / scenario
         if not scen_dir.exists():
             continue
         met = read_met(met_file)
-        buckets = {
-            int(np.argmin(np.abs(_HUSS_VALUES - specific_humidity(ta, rh))))
-            for ta, _, rh in met.values()
-        }
-        assert (
-            len(buckets) == 1
-        ), f"{scenario}: humidity bucket changes across timesteps: {buckets}"
-        ta0, _, rh0 = next(iter(met.values()))
-        huss = specific_humidity(ta0, rh0)
-        nearest = _HUSS_VALUES[next(iter(buckets))]
-        assert (
-            abs(huss - nearest) < 0.001
-        ), f"{scenario}: huss {huss:.4f} too far from nearest RHSD {nearest:.4f}"
+        check_humidity_bucket(scenario, met)
         for tmrt_path in sorted(scen_dir.glob("*/TMRT_*.tif")):
             print(tmrt_path)
             process_tile(tmrt_path, met)

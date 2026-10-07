@@ -7,6 +7,7 @@ import rasterio
 import requests
 from rasterio.features import rasterize
 from rasterio.warp import Resampling, reproject
+from rasterio.windows import Window
 
 from solweig_lyon.config import CRS
 from solweig_lyon.utils.geo import to_2154
@@ -79,24 +80,53 @@ def resample_mask(mask, src_transform, src_crs, dst_profile):
     return out.astype(bool)
 
 
+def row_windows(profile, rows):
+    height, width = profile["height"], profile["width"]
+    for row in range(0, height, rows):
+        yield Window(0, row, width, min(rows, height - row))
+
+
 def mask_product(path, excl_mask, excl_transform, excl_crs):
+    """Mask buildings/water in `path`, streaming row strips to keep memory bounded."""
     with rasterio.open(path) as src:
         profile = src.profile
-        data = src.read()
         band_tags = [src.tags(b) for b in range(1, src.count + 1)]
+        # Strips aligned on the source block height to avoid re-decoding tiles
+        rows = src.block_shapes[0][0] if profile.get("tiled") else 512
 
-    mask = resample_mask(excl_mask, excl_transform, excl_crs, profile)
+        mask = resample_mask(excl_mask, excl_transform, excl_crs, profile)
 
-    nodata = profile.get("nodata")
-    if nodata is None:
-        nodata = float("nan")
-        profile["nodata"] = nodata
-    data[:, mask] = nodata
+        nodata = profile.get("nodata")
+        if nodata is None:
+            nodata = float("nan")
+            profile["nodata"] = nodata
 
-    with rasterio.open(path, "w", **profile) as dst:
-        dst.write(data)
-        for b, tags in enumerate(band_tags, start=1):
-            dst.update_tags(b, **tags)
+        profile["compress"] = "zstd"
+        profile["zstd_level"] = 15
+        profile["num_threads"] = "all_cpus"
+        profile["tiled"] = True
+        profile["blockxsize"] = profile["blockysize"] = 512
+        profile["BIGTIFF"] = "IF_SAFER"
+        if path.name == "PET.tif":
+            profile["predictor"] = 3
+        elif path.name == "PET_index.tif":
+            data_max = max(
+                src.read(window=w).max() for w in row_windows(profile, rows)
+            )
+            if data_max < 16:
+                profile["nbits"] = 4
+
+        tmp = path.with_suffix(".tmp.tif")
+        with rasterio.open(tmp, "w", **profile) as dst:
+            for w in row_windows(profile, rows):
+                data = src.read(window=w)
+                r0 = w.row_off
+                data[:, mask[r0 : r0 + w.height]] = nodata
+                dst.write(data, window=w)
+            for b, tags in enumerate(band_tags, start=1):
+                dst.update_tags(b, **tags)
+
+    tmp.replace(path)
     print(path)
 
 

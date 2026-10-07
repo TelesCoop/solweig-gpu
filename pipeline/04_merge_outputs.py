@@ -44,12 +44,20 @@ def merge_product(scen_dir, prefix, dtype):
         width=width,
         height=height,
         transform=from_origin(min_x, max_y, res, res),
-        compress="deflate",
+        compress="zstd",
+        zstd_level=15,
+        num_threads="all_cpus",
         tiled=True,
         blockxsize=512,
         blockysize=512,
         BIGTIFF="IF_SAFER",
     )
+    if prefix == "PET":
+        profile["predictor"] = 3
+    elif prefix == "PET_index":
+        profile["nbits"] = 4
+    elif prefix == "Shadow":
+        profile["interleave"] = "band"
 
     trim = OVERLAP // 2
     out_path = scen_dir / f"{prefix}.tif"
