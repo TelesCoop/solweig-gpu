@@ -9,7 +9,8 @@ import rasterio
 
 from solweig_lyon.pet import (
     pet_polynomial,
-    wind_speed_from_svf,
+    wind_reduction,
+    wind_speed,
     PET_BINS,
     _HUSS_VALUES,
     specific_humidity,
@@ -60,6 +61,8 @@ def process_tile(tmrt_path, met):
     svf_path = INPUTS / "processed_inputs" / "SVF" / f"SkyViewFactor_{tile}.tif"
     with timed("read_svf"), rasterio.open(svf_path) as svf_src:
         svf = svf_src.read(1).astype(np.float64)
+    with timed("wind_reduction"):
+        wvr = wind_reduction(svf)
 
     with rasterio.open(tmrt_path) as src:
         profile = src.profile
@@ -70,8 +73,8 @@ def process_tile(tmrt_path, met):
             if ts not in met:
                 raise KeyError(f"{tmrt_path} band {b}: no met row for {ts}")
             ta, u, rh = met[ts]
-            with timed("wind_speed_from_svf"):
-                va = wind_speed_from_svf(u, svf)
+            with timed("wind_speed"):
+                va = wind_speed(u, wvr)
             with timed("read_tmrt"):
                 tmrt = src.read(b).astype(np.float64)
             with timed("pet_polynomial"):

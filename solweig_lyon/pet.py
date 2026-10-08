@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import numpy as np
 
 PET_BINS = [4, 8, 13, 18, 23, 29, 35, 41]
@@ -206,9 +208,12 @@ def specific_humidity(ta, rh):
     return w / (1 + w)
 
 
-def wind_speed_from_svf(u_met, svf):
+def wind_reduction(svf):
     svf = np.asarray(svf, dtype=float)
-    wvr = WVR_B * svf**2 - (2.0 / 3.0) * WVR_B * svf**3
+    return WVR_B * svf**2 - (2.0 / 3.0) * WVR_B * svf**3
+
+
+def wind_speed(u_met, wvr):
     return np.maximum(u_met * wvr, WIND_FLOOR)
 
 
@@ -220,7 +225,22 @@ def pet_polynomial(d_tmrt, ta, va, rh):
     dtra = np.asarray(d_tmrt, dtype=float)
     va = np.asarray(va, dtype=float)
 
-    pet = np.full(np.broadcast(ta, dtra, va).shape, _INTERCEPTS[bucket], dtype=float)
+    c = defaultdict(float)
+    c[0, 0] = _INTERCEPTS[bucket]
     for i, j, k, coef in _COEFFS[bucket]:
-        pet = pet + coef * ta**i * dtra**j * va**k
+        c[j, k] = c[j, k] + coef * ta**i
+    deg = {}
+    for j, k in c:
+        deg[j] = max(deg.get(j, 0), k)
+
+    shape = np.broadcast(ta, dtra, va).shape
+    pet = np.zeros(shape)
+    q = np.empty(shape)
+    for j in range(max(deg), -1, -1):
+        q[...] = c[j, deg.get(j, 0)]
+        for k in range(deg.get(j, 0) - 1, -1, -1):
+            q *= va
+            q += c[j, k]
+        pet *= dtra
+        pet += q
     return pet
