@@ -189,3 +189,11 @@ Sortie compressée en DEFLATE, multi-bandes (une bande par heure).
 
 ## Etape 6 - Retirer le masque des batiments
 
+
+## Vérifier l'intégrité des sorties
+
+Les empreintes SHA-256 des rasters produits sont versionnées dans `manifests/<scénario>_<run_id>/SHA256SUMS`, et le tag git `<scénario>-data-<hash>` les référence. Pour vérifier les fichiers :
+
+```bash
+cd outputs/2090_end_century_495753ea && sha256sum -c ../../manifests/2090_end_century_495753ea/SHA256SUMS
+```

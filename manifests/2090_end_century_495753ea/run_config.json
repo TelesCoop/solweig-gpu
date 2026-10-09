@@ -1,0 +1,72 @@
+{
+  "run_id": "495753ea",
+  "config": {
+    "scenario": "2090_end_century",
+    "met_file": {
+      "path": "data/03-END-CENTURY_14jul.txt",
+      "size": 3430,
+      "sha256": "49e5c2ff8a5ed2e9e1e64f6ba82e7cf254719f9c930be5497b9c2ac4a9ddc66b"
+    },
+    "inputs": {
+      "Building_DSM.tif": {
+        "path": "inputs/Building_DSM.tif",
+        "size": 1973624518,
+        "sha256": "4b5c9d6b4ffee627b3425cec4ca9792de464b757aaa320b10f2a882cf4366061"
+      },
+      "DEM.tif": {
+        "path": "inputs/DEM.tif",
+        "size": 1906704731,
+        "sha256": "ebe89d877329ea7533a9a354c6e34393388302a7504a04427ba04f553d67a8f2"
+      },
+      "Trees.tif": {
+        "path": "inputs/Trees.tif",
+        "size": 1133906398,
+        "sha256": "44ebf96527c706655055635cdcadc38f68ead4aa40b7cd5fbb75c0b540d07507"
+      },
+      "Landcover.tif": {
+        "path": "inputs/Landcover.tif",
+        "size": 28117314,
+        "sha256": "9ee1b62f7bd7092824e6cee672d4adac1b7064098e34f78566b41dd880e677a0"
+      },
+      "cache_buildings.geojson": {
+        "path": "inputs/cache_buildings.geojson",
+        "size": 330522505,
+        "sha256": "9c06ffc67a30a442863130f860025e98ea1a89415da88896bb8a95bb2f3d0a69"
+      }
+    },
+    "params": {
+      "date_str": "1985-07-14",
+      "tile_size": 2000,
+      "overlap": 100,
+      "save_kwargs": {
+        "save_tmrt": true,
+        "save_svf": true,
+        "save_shadow": true
+      }
+    },
+    "solweig_gpu_version": "1.2.22"
+  },
+  "provenance": {
+    "git_commit": "7d6a3d940337fcfcc46717948a172332010ec380",
+    "git_dirty": false,
+    "git_diff_sha256": null,
+    "created": "2026-10-09T09:08:39+00:00"
+  },
+  "history": [
+    {
+      "step": "02_run_solweig",
+      "time": "2026-10-09T10:30:29+00:00",
+      "git_commit": "7d6a3d940337fcfcc46717948a172332010ec380"
+    },
+    {
+      "step": "05_sun_exposure",
+      "time": "2026-10-09T11:36:09+00:00",
+      "git_commit": "7d6a3d940337fcfcc46717948a172332010ec380"
+    },
+    {
+      "step": "06_mask_buildings",
+      "time": "2026-10-09T12:22:40+00:00",
+      "git_commit": "7d6a3d940337fcfcc46717948a172332010ec380"
+    }
+  ]
+}
